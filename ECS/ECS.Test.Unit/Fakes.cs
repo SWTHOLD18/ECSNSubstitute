@@ -1,10 +1,10 @@
 ﻿namespace ECS.Test.Unit
 {
-    internal class FakeTempSensor : ITempSensor
+    internal class TempSensor : ITempSensor
     {
         public int Temp { get; set; }
 
-        public FakeTempSensor()
+        public TempSensor()
         {
             Temp = 0;
         }
@@ -15,12 +15,12 @@
         }
     }
 
-    internal class FakeHeater : IHeater
+    internal class Heater : IHeater
     {
         public int TurnOffCalledTimes { get; set; }
         public int TurnOnCalledTimes { get; set; }
 
-        public FakeHeater()
+        public Heater()
         {
             TurnOffCalledTimes = 0;
             TurnOnCalledTimes = 0;
@@ -40,12 +40,12 @@
     }
 
 
-    internal class FakeWindow : IWindow
+    internal class Window : IWindow
     {
         public int OpenCalledTimes { get; set; }
         public int CloseCalledTimes { get; set; }
 
-        public FakeWindow()
+        public Window()
         {
             OpenCalledTimes = 0;
             CloseCalledTimes = 0;

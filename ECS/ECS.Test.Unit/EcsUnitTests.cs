@@ -1,4 +1,6 @@
 ﻿using System;
+using NSubstitute;
+using NSubstitute.Core;
 using NUnit.Framework;
 
 
@@ -7,21 +9,21 @@ namespace ECS.Test.Unit
     [TestFixture]
     public class EcsUnitTests
     {
-        // member variables to hold uut and fakes
-        private FakeTempSensor _fakeTempSensor;
-        private FakeHeater _fakeHeater;
+        // member variables to hold uut and s
         private ECS _uut;
-        private FakeWindow _fakeWindow;
+        private ITempSensor _tempSensor;
+        private IHeater _heater;
+        private IWindow _window;
 
         [SetUp]
         public void Setup()
         {
-            // Create the fake stubs and mocks
-            _fakeHeater = new FakeHeater();
-            _fakeTempSensor = new FakeTempSensor();
-            _fakeWindow = new FakeWindow();
+            // Create the  stubs and mocks
+            _heater = Substitute.For<IHeater>();
+            _tempSensor = Substitute.For<ITempSensor>();
+            _window = Substitute.For<IWindow>();
             // Inject them into the uut via the constructor
-            _uut = new ECS(_fakeTempSensor, _fakeHeater, _fakeWindow, 25, 28);
+            _uut = new ECS(_tempSensor, _heater, _window, 25, 28);
         }
 
         #region Threshold tests
@@ -80,28 +82,28 @@ namespace ECS.Test.Unit
         #region T < Tlow
 
         [Test]
-        public void Regulate_TempIsLow_HeaterIsTurnedOn()
+        public void Regulate_tempIsLow_heaterIsTurnedOn()
         {
             // Setup stub with desired response
-            _fakeTempSensor.Temp = 20;
+            _tempSensor.GetTemp().Returns(_uut.) = 20;
             // Act
             _uut.Regulate();
 
             // Assert on the mock - was the heater called correctly
-            Assert.That(_fakeHeater.TurnOnCalledTimes, Is.EqualTo(1));
+            Assert.That(_heater.TurnOnCalledTimes, Is.EqualTo(1));
         }
 
 
         [Test]
-        public void Regulate_TempIsLow_WindowIsClosed()
+        public void Regulate_tempIsLow_windowIsClosed()
         {
             // Setup stub with desired response
-            _fakeTempSensor.Temp = 20;
+            _tempSensor.Temp = 20;
             // Act
             _uut.Regulate();
 
             // Assert on the mock - was the window called correctly
-            Assert.That(_fakeWindow.CloseCalledTimes, Is.EqualTo(1));
+            Assert.That(_window.CloseCalledTimes, Is.EqualTo(1));
         }
 
         #endregion
@@ -109,27 +111,27 @@ namespace ECS.Test.Unit
         #region T == Tlow
 
         [Test]
-        public void Regulate_TempIsAtLowerThreshold_HeaterIsTurnedOff()
+        public void Regulate_tempIsAtLowerThreshold_heaterIsTurnedOff()
         {
             // Setup the stub with desired response
-            _fakeTempSensor.Temp = 25;
+            _tempSensor.Temp = 25;
             // Act
             _uut.Regulate();
 
             // Assert on the mock - was the heater called correctly
-            Assert.That(_fakeHeater.TurnOffCalledTimes, Is.EqualTo(1));
+            Assert.That(_heater.TurnOffCalledTimes, Is.EqualTo(1));
         }
 
         [Test]
-        public void Regulate_TempIsAtLowerThreshold_WindowIsClosed()
+        public void Regulate_tempIsAtLowerThreshold_windowIsClosed()
         {
             // Setup the stub with desired response
-            _fakeTempSensor.Temp = 25;
+            _tempSensor.Temp = 25;
             // Act
             _uut.Regulate();
 
             // Assert on the mock - was the window called correctly
-            Assert.That(_fakeWindow.CloseCalledTimes, Is.EqualTo(1));
+            Assert.That(_window.CloseCalledTimes, Is.EqualTo(1));
         }
 
         #endregion
@@ -137,25 +139,25 @@ namespace ECS.Test.Unit
         #region Tlow < T < Thigh
 
         [Test]
-        public void Regulate_TempIsBetweenLowerAndUpperThresholds_HeaterIsTurnedOff()
+        public void Regulate_tempIsBetweenLowerAndUpperThresholds_heaterIsTurnedOff()
         {
             // Setup the stub with desired response
-            _fakeTempSensor.Temp = 27;
+            _tempSensor.Temp = 27;
             _uut.Regulate();
 
             // Assert on the mock - was the heater called correctly
-            Assert.That(_fakeHeater.TurnOnCalledTimes, Is.EqualTo(0));
+            Assert.That(_heater.TurnOnCalledTimes, Is.EqualTo(0));
         }
 
         [Test]
-        public void Regulate_TempIsBetweenLowerAndUpperThresholds_WindowIsClosed()
+        public void Regulate_tempIsBetweenLowerAndUpperThresholds_windowIsClosed()
         {
             // Setup the stub with desired response
-            _fakeTempSensor.Temp = 27;
+            _tempSensor.Temp = 27;
             _uut.Regulate();
 
             // Assert on the mock - was the window called correctly
-            Assert.That(_fakeWindow.CloseCalledTimes, Is.EqualTo(1));
+            Assert.That(_window.CloseCalledTimes, Is.EqualTo(1));
         }
 
         #endregion
@@ -163,25 +165,25 @@ namespace ECS.Test.Unit
         #region T == Thigh
 
         [Test]
-        public void Regulate_TempIsAtUpperThreshold_HeaterIsTurnedOff()
+        public void Regulate_tempIsAtUpperThreshold_heaterIsTurnedOff()
         {
             // Setup the stub with desired response
-            _fakeTempSensor.Temp = 27;
+            _tempSensor.Temp = 27;
             _uut.Regulate();
 
             // Assert on the mock - was the heater called correctly
-            Assert.That(_fakeHeater.TurnOffCalledTimes, Is.EqualTo(1));
+            Assert.That(_heater.TurnOffCalledTimes, Is.EqualTo(1));
         }
 
         [Test]
-        public void Regulate_TempIsAtUpperThreshold_WindowIsClosed()
+        public void Regulate_tempIsAtUpperThreshold_windowIsClosed()
         {
             // Setup the stub with desired response
-            _fakeTempSensor.Temp = 27;
+            _tempSensor.Temp = 27;
             _uut.Regulate();
 
             // Assert on the mock - was the window called correctly
-            Assert.That(_fakeWindow.CloseCalledTimes, Is.EqualTo(1));
+            Assert.That(_window.CloseCalledTimes, Is.EqualTo(1));
         }
 
         #endregion
@@ -189,25 +191,25 @@ namespace ECS.Test.Unit
         #region T > Thigh
 
         [Test]
-        public void Regulate_TempIsAboveUpperThreshold_HeaterIsTurnedOff()
+        public void Regulate_tempIsAboveUpperThreshold_heaterIsTurnedOff()
         {
             // Setup the stub with desired response
-            _fakeTempSensor.Temp = 27;
+            _tempSensor.Temp = 27;
             _uut.Regulate();
 
             // Assert on the mock - was the heater called correctly
-            Assert.That(_fakeHeater.TurnOffCalledTimes, Is.EqualTo(1));
+            Assert.That(_heater.TurnOffCalledTimes, Is.EqualTo(1));
         }
 
         [Test]
-        public void Regulate_TempIsAboveUpperThreshold_WindowIsOpened()
+        public void Regulate_tempIsAboveUpperThreshold_windowIsOpened()
         {
             // Setup the stub with desired response
-            _fakeTempSensor.Temp = 29;
+            _tempSensor.Temp = 29;
             _uut.Regulate();
 
             // Assert on the mock - was the window called correctly
-            Assert.That(_fakeWindow.OpenCalledTimes, Is.EqualTo(1));
+            Assert.That(_window.OpenCalledTimes, Is.EqualTo(1));
         }
 
         #endregion
